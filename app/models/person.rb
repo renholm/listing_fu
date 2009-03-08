@@ -48,7 +48,8 @@ class Person < ActiveRecord::Base
 
     query = "*" if query == ""
     
-    ferret_options[:per_page] = listing_hash[:per_page] || 15
+    ferret_options[:page] = listing_hash[:page] || 1
+    ferret_options[:per_page] = options[:per_page] || 15
 
     search_results = self.find_with_ferret(query, ferret_options)
     

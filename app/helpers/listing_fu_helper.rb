@@ -1,4 +1,8 @@
 module ListingFuHelper
+  def pagination(collection, options = {})
+    will_paginate collection, :param_name => "#{collection.settings[:name]}[page]"
+  end
+  
   def listing(collection, options = {}, &block)
     yield Listing.new(collection, options)
   end

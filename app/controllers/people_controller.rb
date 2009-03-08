@@ -11,7 +11,7 @@ class PeopleController < ApplicationController
     # params[:listing][:filters] ||= {}
     # params[:listing][:filters][:name] ||= "Joakim*"
     
-    @people = Person.listing params
+    @people = Person.listing params, :per_page => 2
     
     respond_to do |format|
       format.html # index.html.erb
