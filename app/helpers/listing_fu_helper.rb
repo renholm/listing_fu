@@ -4,8 +4,6 @@ module ListingFuHelper
   end
   
   def filters(collection, options = {}, &block)
-    # TODO: get the url from somewhere
-    
     form_tag('', :method => :get) do
       filter = Filter.new(options)
       
