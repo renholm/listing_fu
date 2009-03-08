@@ -10,9 +10,10 @@ class Person < ActiveRecord::Base
   
       define_method "_#{name.to_s}" do
         if definition.is_a? Proc
+          # TODO: handle nil values, maby with a begin rescue? or break the proc apart
           self.instance_eval &definition
         elsif definition.is_a? Symbol or definition.is_a? String
-          self.send(definition)
+          self.send(definition).to_s
         else
           raise 'Error: Filter needs to be either a Symbol, String or a Proc'
         end
@@ -25,31 +26,39 @@ class Person < ActiveRecord::Base
   
   # TODO: merge this and the proxylisting in a module?
   def self.listing(params, options = {}, ferret_options = {})
+    # the default name for a listing is listing
     options[:name] ||= :listing
     
-    listing_hash = params[options[:name]]
+    listing_hash = params[options[:name]] || {}
     
-    results_container = ListingFu::ResultsContainer.new
-    
-    if sort = listing_hash.delete(:sort)
-      reverse = listing_hash.delete(:reverse) || false
-
-      ferret_options[:sorting] = [Ferret::Search::SortField.new(sort, :reverse => reverse)]
+    if listing_hash[:sort]
+      field = "_#{listing_hash[:sort][:field]}".to_sym
+      reverse = listing_hash[:sort][:reverse] == "true"
+      
+      ferret_options[:sort] = [Ferret::Search::SortField.new(field, :reverse => reverse)]
     end
     
     query = listing_hash[:query] || ""
 
-    listing_hash[:filters].each do |filter, filter_query|
-      query += "_#{filter}:#{filter_query} "
+    if filters = listing_hash[:filters]
+      filters.each do |filter, filter_query|
+        query += "_#{filter}:#{filter_query} " unless filter_query.blank?
+      end
     end
-    
-    ferret_options[:per_page] = params[options[:name]][:per_page] || 15
 
-    results_container.settings[:filters] = listing_hash[:filters]
-    results_container.search_results = self.find_with_ferret(query, ferret_options)
-  
-    results_container
+    query = "*" if query == ""
+    
+    ferret_options[:per_page] = listing_hash[:per_page] || 15
+
+    search_results = self.find_with_ferret(query, ferret_options)
+    
+    # save the settings inside the SearchResults object so we can use them inside our view later on
+    search_results.settings[:name] = options[:name]
+    search_results.settings[:filters] = listing_hash[:filters] || {}
+    search_results.settings[:sort] = listing_hash[:sort] || {}
+    
+    search_results
   end
   
-  listing_filter :name => :name, :account_name => lambda { account.name }, :groups => lambda { groups.join(' ') }
+  listing_filter :name => :name, :age => :age, :account_name => lambda { account.name }, :groups => lambda { groups.join(' ') }
 end

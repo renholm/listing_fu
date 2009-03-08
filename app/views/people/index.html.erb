@@ -1,10 +1,14 @@
 <h1>Listing people</h1>
 
 <div>
-  <% form_tag people_url, :method => :get do %>
-    <%= text_field_tag 'listing[filters][name]' %>
-    <%= submit_tag 'Filter', :disable_with => 'Filtering...' %>
+  
+  <% pp @people %>
+  
+  <% filters(@people) do |filters| %>
+    <%= filters.text_filter :name %>
+    <%= filters.options_filter :age, [22, 23, 24, 25] %>
   <% end %>
+  
 </div>
 
 <table>

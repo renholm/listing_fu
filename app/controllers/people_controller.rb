@@ -8,8 +8,8 @@ class PeopleController < ApplicationController
     # params[:listing][:sort] = :_name
     # params[:listing][:reverse] = true
     
-    params[:listing][:filters] ||= {}
-    params[:listing][:filters][:name] ||= "Joakim*"
+    # params[:listing][:filters] ||= {}
+    # params[:listing][:filters][:name] ||= "Joakim*"
     
     @people = Person.listing params
     
