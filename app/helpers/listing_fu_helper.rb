@@ -4,7 +4,13 @@ module ListingFuHelper
   end
   
   def listing(collection, options = {}, &block)
-    yield Listing.new(collection, options)
+    listing = Listing.new(collection, options)
+    
+    yield listing
+    
+    options[:renderer] ||= TableRenderer
+    
+    concat options[:renderer].new.render(listing), block.binding
   end
   
   def filters(collection, options = {}, &block)
@@ -55,11 +61,12 @@ module ListingFuHelper
   end
   
   class Listing
-    attr_accessor :collection, :options
+    attr_accessor :collection, :options, :rows
     
     def initialize(collection, options)
       self.collection = collection
       self.options = options
+      self.rows = []
     end
     
     def column(column, options = {}, &block)
@@ -70,4 +77,11 @@ module ListingFuHelper
       
     end
   end
+  
+  class TableRenderer
+    def render(listing)
+      # TODO: The magic table renderer
+    end
+  end
+  
 end
