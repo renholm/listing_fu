@@ -29,7 +29,7 @@ class Person < ActiveRecord::Base
     
     listing_hash = params[options[:name]]
     
-    search_result = ListingFu::RecordCollection.new
+    results_container = ListingFu::ResultsContainer.new
     
     if sort = listing_hash.delete(:sort)
       reverse = listing_hash.delete(:reverse) || false
@@ -45,10 +45,10 @@ class Person < ActiveRecord::Base
     
     ferret_options[:per_page] = params[options[:name]][:per_page] || 15
 
-    search_result.filter_settings[:filters] = listing_hash[:filters]
-    search_result.ferret_search_results = self.find_with_ferret(query, ferret_options)
+    results_container.settings[:filters] = listing_hash[:filters]
+    results_container.search_results = self.find_with_ferret(query, ferret_options)
   
-    search_result
+    results_container
   end
   
   listing_filter :name => :name, :account_name => lambda { account.name }, :groups => lambda { groups.join(' ') }
