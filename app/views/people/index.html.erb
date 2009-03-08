@@ -1,0 +1,29 @@
+<h1>Listing people</h1>
+
+<div>
+  <% form_tag people_url, :method => :get do %>
+    <%= text_field_tag 'listing[filters][name]' %>
+    <%= submit_tag 'Filter', :disable_with => 'Filtering...' %>
+  <% end %>
+</div>
+
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Age</th>
+  </tr>
+
+<% for person in @people %>
+  <tr>
+    <td><%=h person.name %></td>
+    <td><%=h person.age %></td>
+    <td><%= link_to 'Show', person %></td>
+    <td><%= link_to 'Edit', edit_person_path(person) %></td>
+    <td><%= link_to 'Destroy', person, :confirm => 'Are you sure?', :method => :delete %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New person', new_person_path %>
