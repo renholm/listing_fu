@@ -1,14 +1,24 @@
 <h1>Listing people</h1>
 
 <div>
-  
-  <% pp @people %>
-  
   <% filters(@people) do |filters| %>
     <%= filters.text_filter :name %>
-    <%= filters.options_filter :age, [22, 23, 24, 25] %>
+    <%= filters.options_filter :age, [15, 16, 17] %>
   <% end %>
   
+  <% listing(@people) do |listing| %>
+    <%= listing.column :name %>
+    
+    <% listing.column :age do |person| %>
+      <%= "My age is #{person.age}}" %>
+    <% end %>
+    
+    <% listing.actions do |person| %>
+      <td><%= link_to 'Show', person %></td>
+      <td><%= link_to 'Edit', edit_person_path(person) %></td>
+      <td><%= link_to 'Destroy', person, :confirm => 'Are you sure?', :method => :delete %></td>
+    <% end %>
+  <% end %>
 </div>
 
 <table>
@@ -21,9 +31,6 @@
   <tr>
     <td><%=h person.name %></td>
     <td><%=h person.age %></td>
-    <td><%= link_to 'Show', person %></td>
-    <td><%= link_to 'Edit', edit_person_path(person) %></td>
-    <td><%= link_to 'Destroy', person, :confirm => 'Are you sure?', :method => :delete %></td>
   </tr>
 <% end %>
 </table>

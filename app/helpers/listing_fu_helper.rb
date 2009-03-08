@@ -5,8 +5,9 @@ module ListingFuHelper
   
   def filters(collection, options = {}, &block)
     # TODO: get the url from somewhere
-    form_tag('/people', :method => :get) do
-      filter = ListingFilter.new(options)
+    
+    form_tag('', :method => :get) do
+      filter = Filter.new(options)
       
       yield filter
 
@@ -31,7 +32,7 @@ module ListingFuHelper
     end
   end
   
-  class ListingFilter
+  class Filter
     attr_accessor :definitions
     
     def initialize(options)
@@ -59,7 +60,11 @@ module ListingFuHelper
       self.options = options
     end
     
-    def column(column, options = {})
+    def column(column, options = {}, &block)
+      
+    end
+    
+    def actions(options = {}, &block)
       
     end
   end
