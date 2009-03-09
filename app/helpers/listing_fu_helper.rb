@@ -4,13 +4,13 @@ module ListingFuHelper
   end
   
   def listing(collection, options = {}, &block)
-    listing = Listing.new(collection, options)
-    
-    yield listing
-    
     options[:renderer] ||= TableRenderer
+
+    renderer = options[:renderer].new(collection, options, self, &block)
     
-    concat options[:renderer].new.render(listing), block.binding
+    yield renderer
+    
+    renderer.render
   end
   
   def filters(collection, options = {}, &block)
@@ -60,27 +60,57 @@ module ListingFuHelper
     end
   end
   
-  class Listing
-    attr_accessor :collection, :options, :rows
+  class Renderer
+    attr_accessor :definitions, :collection, :options, :template, :proc
     
-    def initialize(collection, options)
+    def initialize(collection, options, template, &proc)
       self.collection = collection
       self.options = options
-      self.rows = []
+      self.template = template
+      self.proc = proc
+
+      self.definitions = []
+      
     end
     
     def column(column, options = {}, &block)
+      if block_given?
+        puts "** adding definition to definitions"
+        
+        self.definitions << {:type => :erb, :block => block}
+      else
+        puts "** creating new definition"
+        
+        self.definitions << {:type => :own, :block => Proc.new {|item| item.send(:name)}}
+      end
       
+      nil
     end
     
     def actions(options = {}, &block)
-      
+      # TODO: take care of this..
     end
   end
   
-  class TableRenderer
-    def render(listing)
-      # TODO: The magic table renderer
+  class TableRenderer < Renderer
+    def render
+      output = ""
+
+      self.collection.each do |item|
+        self.definitions.each do |definition|
+          case definition[:type]
+          when :own
+            self.template.concat "<b>" + definition[:block].call(item) + "</b>"
+          when :erb
+            self.template.concat "<b>"
+            
+            definition[:block].call(item)
+            
+            self.template.concat "</b>"
+          end
+
+        end
+      end
     end
   end
   

@@ -10,7 +10,7 @@
     <%= listing.column :name %>
     
     <% listing.column :age do |person| %>
-      <%= "My age is #{person.age}}" %>
+      <%= "My age is #{person.age}" %>
     <% end %>
     
     <% listing.actions do |person| %>
@@ -22,21 +22,5 @@
 </div>
 
 <%= pagination @people %>
-
-<table>
-  <tr>
-    <th>Name</th>
-    <th>Age</th>
-  </tr>
-
-<% for person in @people %>
-  <tr>
-    <td><%=h person.name %></td>
-    <td><%=h person.age %></td>
-  </tr>
-<% end %>
-</table>
-
-<br />
 
 <%= link_to 'New person', new_person_path %>
