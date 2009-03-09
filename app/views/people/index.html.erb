@@ -1,14 +1,13 @@
 <h1>Listing people</h1>
 
-<div>
+<div id="foo">
   <% filters(@people) do |filters| %>
     <%= filters.text_filter :name %>
     <%= filters.options_filter :age, [15, 16, 17] %>
   <% end %>
   
-  <% listing(@people) do |listing| %>
-    <%= listing.column :name %>
-    
+  <% listing(@people, :html_options => {:class => "foobar"}) do |listing| %>
+    <%= listing.column :name, :html_options => {:class => "foobar"} %>
     <% listing.column :age do |person| %>
       <%= "My age is #{person.age}" %>
     <% end %>

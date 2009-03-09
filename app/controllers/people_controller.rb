@@ -3,15 +3,7 @@ class PeopleController < ApplicationController
   # GET /people.xml
   
   def index
-    # make a helper post this nice values!
-    # params[:listing] = {}
-    # params[:listing][:sort] = :_name
-    # params[:listing][:reverse] = true
-    
-    # params[:listing][:filters] ||= {}
-    # params[:listing][:filters][:name] ||= "Joakim*"
-    
-    @people = Person.listing params, :per_page => 1
+    @people = Person.listing params, :per_page => 50
     
     respond_to do |format|
       format.html # index.html.erb

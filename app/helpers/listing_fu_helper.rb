@@ -6,7 +6,7 @@ module ListingFuHelper
   def listing(collection, options = {}, &block)
     options[:renderer] ||= TableRenderer
 
-    renderer = options[:renderer].new(collection, options, self, &block)
+    renderer = options[:renderer].new(collection, options, self)
     
     yield renderer
     
@@ -61,57 +61,139 @@ module ListingFuHelper
   end
   
   class Renderer
-    attr_accessor :definitions, :collection, :options, :template, :proc
+    attr_accessor :collection, :options, :template, :definitions
     
-    def initialize(collection, options, template, &proc)
+    def initialize(collection, options, template)
       self.collection = collection
       self.options = options
       self.template = template
-      self.proc = proc
-
       self.definitions = []
-      
     end
     
     def column(column, options = {}, &block)
       if block_given?
-        puts "** adding definition to definitions"
-        
-        self.definitions << {:type => :erb, :block => block}
+        definitions << {:type => :erb_column, :block => block, :column => column, :options => options}
       else
-        puts "** creating new definition"
-        
-        self.definitions << {:type => :own, :block => Proc.new {|item| item.send(:name)}}
+        definitions << {:type => :own_column, :block => Proc.new {|item| item.send(column)}, :column => column, :options => options}
       end
       
       nil
     end
     
     def actions(options = {}, &block)
-      # TODO: take care of this..
+      definitions << {:type => :erb_actions, :block => block, :options => options}
+      
+      nil
     end
   end
   
   class TableRenderer < Renderer
+    
     def render
-      output = ""
+      concat "<table#{table_options}>"
+      
+      concat "<tr>"
+      definitions.each do |definition|
+        concat "<th>"
 
-      self.collection.each do |item|
-        self.definitions.each do |definition|
+        if definition[:type] == :own_column || definition[:type] == :erb_column 
+          name = @collection.settings[:name]
+
+          label = definition[:options][:label] || definition[:column].to_s.humanize
+
+          sort_column = definition[:column]
+
+          # if the sorting column is the current column of the current definition,
+          # check if we should swtich the order of the sorting
+          sort_reverse = if @collection.settings[:sort][:column] == sort_column.to_s
+              if @collection.settings[:sort][:reverse] == "true"
+                "false"
+              else
+                "true"
+              end  
+            else
+              "false"
+            end
+
+          url_hash = { name => 
+            {:sort => {:column => sort_column, :reverse => sort_reverse}, 
+             :filters => @collection.settings[:filters]}
+            }
+
+          concat "<a href=\"#{template.url_for(url_hash)}\">#{label }</a>"
+        end
+        
+        concat "</th>"
+      end
+      concat "</tr>"
+      
+      collection.each do |item|
+        concat "<tr#{tr_options(item)}>"
+        
+        definitions.each do |definition|
           case definition[:type]
-          when :own
-            self.template.concat "<b>" + definition[:block].call(item) + "</b>"
-          when :erb
-            self.template.concat "<b>"
+          when :own_column
+            concat "<td#{td_options(definition[:options])}>" + definition[:block].call(item).to_s + "</td>"
+          when :erb_column
+            concat "<td#{td_options(definition[:options])}>"
             
             definition[:block].call(item)
             
-            self.template.concat "</b>"
+            concat "</td>"
+          when :erb_actions
+            definition[:block].call(item)
           end
-
         end
+        
+        concat "</tr>"
       end
+
+      concat "</table>"
+    end
+    
+    private
+    def concat(string)
+      template.concat string
+    end
+    
+    def table_options
+      options[:html_options] ||= {}
+      
+      output = to_html_attributes options[:html_options]
+
+      " #{output}" unless output.blank?
+    end
+    
+    def tr_options(item)
+      output = ""
+      
+      if colorize = options[:colorize]
+        if colorize.is_a? String
+          output = to_html_attributes({:class => colorize})
+        elsif colorize.is_a? Proc
+          output = to_html_attributes({:class => colorize.call(item)})
+        elsif colorize == :none
+          output = ""
+        end
+      else
+        output = to_html_attributes({:class => template.cycle('even', 'odd')})
+      end
+
+      " #{output}"
+    end
+
+    def td_options(td_options)
+      td_options[:html_options] ||= {}
+      
+      output = to_html_attributes td_options[:html_options]
+
+      " #{output}" unless output.blank?
+    end
+    
+    def to_html_attributes(array)
+      array.collect{|k, v| "#{k}=\"#{v}\""}.join(' ')
     end
   end
+  
   
 end
