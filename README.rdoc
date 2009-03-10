@@ -1,0 +1,41 @@
+= ListingFu
+
+ListingFu is a compact DSL for defining and searching in lists of content in your Rails app, it uses ferret as backend to work its fast magic.
+
+== Model
+
+We define our different filters we want to use in our app in the model.
+
+  class Person < ActiveRecord::Base
+    has_many :memberships
+    has_many :groups, :through => :memberships
+  
+    has_one :account
+  
+    listing_filter :name => :name, :age => :age, :account_name => lambda { account.name }, :groups => lambda { groups.join(' ') }
+  end
+
+== View
+
+In our view we can now use our defined filters to filter the listing to find the content we want.
+
+  <% filters(@people) do |filters| %>
+    <%= filters.text_filter :name %>
+    <%= filters.options_filter :age, [15, 16, 17] %>
+  <% end %>`
+    
+This is the actual listing code that renders a table with clickable headers to do the sorting.
+
+  <% listing(@people) do |listing| %>
+    <%= listing.column :name %>
+    <% listing.column :age do |person| %>
+      <%= "My age is #{person.age}" %>
+    <% end %>
+    <% listing.actions do |person| %>
+      <td><%= link_to 'Show', person %></td>
+      <td><%= link_to 'Edit', edit_person_path(person) %></td>
+      <td><%= link_to 'Destroy', person, :confirm => 'Are you sure?', :method => :delete %></td>
+    <% end %>
+  <% end %>
+    
+Copyright (c) 2009 Joakim Ekberg, released under the MIT license
