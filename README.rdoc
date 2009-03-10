@@ -4,7 +4,7 @@ ListingFu is a compact DSL for defining and searching in lists of content in you
 
 == Model
 
-We define our different filters we want to use in our app in the model.
+We define our different filters we want to use in our app inside the model:
 
   class Person < ActiveRecord::Base
     has_many :memberships
@@ -17,20 +17,22 @@ We define our different filters we want to use in our app in the model.
 
 == View
 
-In our view we can now use our defined filters to filter the listing to find the content we want.
+In our view we can now use our defined filters to filter the listing to find the content we want:
 
   <% filters(@people) do |filters| %>
     <%= filters.text_filter :name %>
-    <%= filters.options_filter :age, [15, 16, 17] %>
-  <% end %>`
+    <%= filters.options_filter :age, [12, 13, 14] %>
+  <% end %>
     
-This is the actual listing code that renders a table with clickable headers to do the sorting.
+This is the actual listing code that renders a table with clickable headers to do the sorting:
 
   <% listing(@people) do |listing| %>
     <%= listing.column :name %>
+    
     <% listing.column :age do |person| %>
       <%= "My age is #{person.age}" %>
     <% end %>
+    
     <% listing.actions do |person| %>
       <td><%= link_to 'Show', person %></td>
       <td><%= link_to 'Edit', edit_person_path(person) %></td>
