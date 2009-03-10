@@ -6,8 +6,8 @@
     <%= filters.options_filter :age, [15, 16, 17] %>
   <% end %>
   
-  <% listing(@people, :html_options => {:class => "foobar"}) do |listing| %>
-    <%= listing.column :name, :html_options => {:class => "foobar"} %>
+  <% listing(@people) do |listing| %>
+    <%= listing.column :name %>
     <% listing.column :age do |person| %>
       <%= "My age is #{person.age}" %>
     <% end %>
