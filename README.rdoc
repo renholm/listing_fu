@@ -39,5 +39,11 @@ This is the actual listing code that renders a table with clickable headers to d
       <td><%= link_to 'Destroy', person, :confirm => 'Are you sure?', :method => :delete %></td>
     <% end %>
   <% end %>
+  
+== Controller
+
+Then in our controller we just use the listing method with the parameters from the view
+
+  @people = Person.listing params, :per_page => 50
     
 Copyright (c) 2009 Joakim Ekberg, released under the MIT license
