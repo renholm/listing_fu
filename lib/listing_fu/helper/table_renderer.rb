@@ -74,6 +74,7 @@ module ListingFu
   
       def table_options
         options[:html_options] ||= {}
+        options[:html_options][:class] ||= :listing 
   
         output = to_html_attributes options[:html_options]
   
