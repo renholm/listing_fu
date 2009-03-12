@@ -11,10 +11,16 @@ module ListingFu
       end
     
       def column(column, options = {}, &block)
+        hash = {
+          :filterable => collection.settings[:available_filters].include?(column.to_sym),
+          :column => column, 
+          :options => options
+        }
+        
         if block_given?
-          definitions << {:type => :erb_column, :block => block, :column => column, :options => options}
+          definitions << {:type => :erb_column, :block => block}.merge(hash)
         else
-          definitions << {:type => :own_column, :block => Proc.new {|item| item.send(column)}, :column => column, :options => options}
+          definitions << {:type => :own_column, :block => Proc.new {|item| item.send(column)}}.merge(hash)
         end
     
         nil

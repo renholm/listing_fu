@@ -38,6 +38,7 @@ module ListingFu
         search_results.settings[:name] = options[:name]
         search_results.settings[:filters] = listing_hash[:filters] || {}
         search_results.settings[:sort] = listing_hash[:sort] || {}
+        search_results.settings[:available_filters] = self._available_filters
 
         search_results
       end

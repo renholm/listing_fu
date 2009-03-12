@@ -13,26 +13,30 @@ module ListingFu
   
             label = definition[:options][:label] || definition[:column].to_s.humanize
   
-            sort_column = definition[:column]
-  
-            # if the sorting column is the current column of the current definition,
-            # check if we should swtich the order of the sorting
-            sort_reverse = if @collection.settings[:sort][:column] == sort_column.to_s
-                if @collection.settings[:sort][:reverse] == "true"
-                  "false"
+            if definition[:filterable]
+              sort_column = definition[:column]
+              
+              # if the sorting column is the current column of the current definition,
+              # check if we should swtich the order of the sorting
+              sort_reverse = if @collection.settings[:sort][:column] == sort_column.to_s
+                  if @collection.settings[:sort][:reverse] == "true"
+                    "false"
+                  else
+                    "true"
+                  end  
                 else
-                  "true"
-                end  
-              else
-                "false"
-              end
-  
-            url_hash = { name => 
-              {:sort => {:column => sort_column, :reverse => sort_reverse}, 
-               :filters => @collection.settings[:filters]}
-              }
-  
-            concat "<a href=\"#{template.url_for(url_hash)}\">#{label }</a>"
+                  "false"
+                end
+              
+              url_hash = { name => 
+                {:sort => {:column => sort_column, :reverse => sort_reverse}, 
+                 :filters => @collection.settings[:filters]}
+                }
+              
+              concat "<a href=\"#{template.url_for(url_hash)}\">#{label}</a>"
+            else
+              concat label
+            end
           end
   
           concat "</th>"

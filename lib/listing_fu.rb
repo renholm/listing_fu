@@ -9,6 +9,8 @@ module ListingFu
   
   module ClassMethods
     def listing_filter(filters)
+      _available_filters = []
+
       fields = {}
 
       filters.each do |name, definition|
@@ -22,12 +24,17 @@ module ListingFu
           end
         end
 
+        _available_filters << name
+
         define_method "_#{name.to_s}", &method_declaration
         define_method "_#{name.to_s}_sort", &method_declaration
 
         fields["_#{name.to_s}"] = {}
         fields["_#{name.to_s}_sort"] = {:index => :untokenized}
       end
+
+      # Save the available filters in the class for use later on
+      class_eval "def self._available_filters; [#{_available_filters.collect{|af| ":#{af}"} * ", "}]; end"
 
       acts_as_ferret :fields => fields, :remote => true
     end
