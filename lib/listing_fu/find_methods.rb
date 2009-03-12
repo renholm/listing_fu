@@ -13,17 +13,17 @@ module ListingFu
         listing_hash = params[options[:name]] || {}
 
         if listing_hash[:sort]
-          field = "_#{listing_hash[:sort][:column]}_sort".to_sym
+          column = "_#{listing_hash[:sort][:column]}_sort".to_sym
           reverse = listing_hash[:sort][:reverse] == "true"
-
-          ferret_options[:sort] = [Ferret::Search::SortField.new(field, :reverse => reverse)]
+          
+          ferret_options[:sort] = [Ferret::Search::SortField.new(column, :reverse => reverse, :type => :string)]
         end
 
         query = listing_hash[:query] || ""
 
         if filters = listing_hash[:filters]
           filters.each do |filter, filter_query|
-            query += "_#{filter}:#{filter_query} " unless filter_query.blank?
+            query += "_#{filter}:#{filter_query.downcase} " unless filter_query.blank?
           end
         end
 

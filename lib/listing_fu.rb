@@ -14,9 +14,9 @@ module ListingFu
       filters.each do |name, definition|
         method_declaration = lambda do
           if definition.is_a? Proc
-            self.instance_eval &definition
+            self.instance_eval(&definition).to_s.downcase
           elsif definition.is_a? Symbol or definition.is_a? String
-            self.send definition
+            self.send(definition).to_s.downcase
           else
             raise 'Error: Filter needs to be either a Symbol, String or a Proc'
           end
