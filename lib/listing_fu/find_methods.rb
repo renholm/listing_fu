@@ -6,7 +6,9 @@ module ListingFu
     end
     
     module InstanceMethods
-      def listing(params, options = {}, ferret_options = {})
+      def listing(params, options = {}, find_options = {})
+        ferret_options = {}
+        
         # the default name for a listing is listing
         options[:name] ||= :listing
 
@@ -32,7 +34,7 @@ module ListingFu
         ferret_options[:page] = listing_hash[:page] || 1
         ferret_options[:per_page] = options[:per_page] || 15
 
-        search_results = self.find_with_ferret(query, ferret_options)
+        search_results = self.find_with_ferret(query, ferret_options, find_options)
 
         # save the settings inside the SearchResults object so we can use them inside our view later on
         search_results.settings[:name] = options[:name]
