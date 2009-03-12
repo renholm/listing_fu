@@ -4,12 +4,11 @@ require 'will_paginate'
 module ListingFu
   def self.included(base)
     base.extend(ClassMethods)
-    base.class_eval { include InstanceMethods }
   end
   
   module ClassMethods
     def listing_filter(filters)
-      _available_filters = []
+      @available_filters = []
 
       fields = {}
 
@@ -24,7 +23,7 @@ module ListingFu
           end
         end
 
-        _available_filters << name
+        @available_filters << name
 
         define_method "_#{name.to_s}", &method_declaration
         define_method "_#{name.to_s}_sort", &method_declaration
@@ -33,14 +32,14 @@ module ListingFu
         fields["_#{name.to_s}_sort"] = {:index => :untokenized}
       end
 
-      # Save the available filters in the class for use later on
-      class_eval "def self._available_filters; [#{_available_filters.collect{|af| ":#{af}"} * ", "}]; end"
+      # save the available filters in the class for use in the view later on
+      (class << self; self; end).class_eval do
+        def _available_filters
+          @available_filters
+        end
+      end
 
       acts_as_ferret :fields => fields, :remote => true
     end
-  end
-  
-  module InstanceMethods
-
   end
 end
